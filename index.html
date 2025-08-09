@@ -82,6 +82,7 @@
                 // Pick a random color from the array
                 const randomColor = borderColors[Math.floor(Math.random() * borderColors.length)];
                 textArea.style.border = `2px solid ${randomColor}`;
+                textArea.style.color = `${randomColor}`
 
                 // Save on typing
                 textArea.addEventListener("input", saveNotes);
