@@ -4,87 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tip Calculator</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/1651/1651965.png">
+    <title>Simple Note App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/6451/6451772.png">
+    <style>
+        .textInput {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .textInput:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .textInput:hover {
+            border-color: #d1d5db;
+        }
+
+        @media (max-width: 640px) {
+            .textInput {
+                min-height: 100px;
+                font-size: 16px;
+                /* Prevent zoom on iOS */
+            }
+        }
+    </style>
 </head>
 
-<body class="min-h-screen bg-gray-100 font-serif flex items-center justify-center p-4">
-    <div class="container bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-auto">
-        <h1 class="text-3xl font-bold text-center mb-8">
-            Tip Calculator
+<body
+    class="bg-[linear-gradient(90deg,rgba(42,123,155,1)_0%,rgba(87,199,133,1)_60%,rgba(237,221,83,1)_100%)] min-h-screen">
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <h1
+            class="text-white font-bold text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl pt-8 sm:pt-12 md:pt-16 mb-6 sm:mb-8">
+            Simple Notes App
         </h1>
 
-        <div class="mb-6">
-            <p class="text-base leading-relaxed text-gray-700">
-                Enter the bill amount and tip percentage to calculate the total
-            </p>
-        </div>
-
-        <div class="space-y-4 mb-6">
-            <div>
-                <label for="inputBillAmount" class="block text-sm font-medium text-gray-700 mb-2 cursor-pointer">
-                    Bill Amount:
-                </label>
-                <input type="number" id="inputBillAmount"
-                    class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                    placeholder="Enter bill amount">
-            </div>
-            <div>
-                <label for="inputTipAmount" class="block text-sm font-medium text-gray-700 mb-2 cursor-pointer">
-                    Tip Percentage:
-                </label>
-                <input type="number" id="inputTipAmount"
-                    class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                    placeholder="Enter tip percentage">
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <button type="button" id="calCulateBtn"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 text-lg">
-                CALCULATE
+        <div class="flex justify-center sm:justify-start mb-6 sm:mb-8">
+            <button type="button" id="createNotes"
+                class="px-4 py-2 sm:px-6 sm:py-3 bg-purple-700 rounded-lg shadow-lg hover:bg-purple-600 duration-200 text-white text-sm sm:text-base font-medium">
+                ✍🏻 Create
             </button>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded-md">
-            <div class="text-lg font-medium" id="totalSection">
-                <p>Total: </p>
-            </div>
-            <div class="text-sm text-gray-600 mt-1 hidden" id="breakdown">
-                <div>Bill Amount: $<span id="billDisplay">0.00</span></div>
-                <div>Tip Amount: $<span id="tipDisplay">0.00</span></div>
-            </div>
-        </div>
+        <div class="textArea grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 pb-10"
+            id="inputNotes"></div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const calCulateBtn = document.getElementById('calCulateBtn')
-            const breakdown = document.getElementById('breakdown')
-            const calculateTotalBill = () => {
-                const billAmount = Number(document.getElementById('inputBillAmount').value)
-                const tipAmount = Number(document.getElementById('inputTipAmount').value)
-                if (billAmount <= 0 || tipAmount <= 0) {
-                    alert("Enter Valid Bill Amount and Tip Percentage")
-                    return
-                }
+            const createNotesBtn = document.getElementById('createNotes');
+            const inputNotes = document.getElementById('inputNotes');
 
-                const totalBill = billAmount + ((billAmount * tipAmount) / 100)
-                document.getElementById('totalSection').innerHTML = `<p>Total: ₹${totalBill.toFixed(2)}</p>`
+            // Load saved notes
+            const savedNotes = JSON.parse(localStorage.getItem("notes")) || [];
+            savedNotes.forEach(text => addNotes(text));
 
-                breakdown.innerHTML = `<div>Bill Amount: <span id="billDisplay">₹${billAmount}</span></div>
-                <div>Tip Amount: <span id="tipDisplay">${tipAmount}%</span></div>`
-                breakdown.style.display = 'block'
+            function addNotes(content = "") {
+                const borderColors = ['red', 'green', 'blue', 'purple', 'olive', 'orange', 'black'];
+
+                const textArea = document.createElement("textarea");
+                textArea.classList.add("textInput");
+                textArea.value = content;
+                textArea.placeholder = "Double Click To Delete Notes";
+
+                // Pick a random color from the array
+                const randomColor = borderColors[Math.floor(Math.random() * borderColors.length)];
+                textArea.style.border = `2px solid ${randomColor}`;
+
+                // Save on typing
+                textArea.addEventListener("input", saveNotes);
+
+                // Delete on double click
+                textArea.addEventListener("dblclick", () => {
+                    let confirmed = confirm("Do You Want To Delete?");
+                    if (confirmed) {
+                        textArea.remove();
+                        saveNotes();
+                    } else {
+                        alert("User Cancelled Deletion");
+                    }
+                });
+
+                inputNotes.appendChild(textArea);
+                saveNotes();
             }
-            calCulateBtn.addEventListener("click", calculateTotalBill)
+
+            function saveNotes() {
+                const notes = Array.from(document.querySelectorAll(".textInput")).map(note => note.value);
+                localStorage.setItem("notes", JSON.stringify(notes));
+            }
+
+            // Create note on button click
+            createNotesBtn.addEventListener("click", () => {
+                addNotes();
+            });
+
+            // Optional: Create note on pressing Enter key anywhere
             document.addEventListener("keydown", (e) => {
-                if (e.key === 'Enter') {
-                    calculateTotalBill()
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();  // prevent unwanted behavior
+                    addNotes();
                 }
-            })
-        })
+            });
+        });
     </script>
+
+
 </body>
 
 </html>
